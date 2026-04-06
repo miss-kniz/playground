@@ -17,4 +17,44 @@ model User {
   email     String   @unique
   password  String
   createdAt DateTime @default(now())
+
+  // relations
+  watchLists WatchList[]
+  movies     Movie[]     @relation("MovieCreator")
+}
+
+model Movie {
+  id          String    @id @default(uuid())
+  creatorId   String
+  title       String
+  overview    String?
+  releaseYear DateTime?
+  genres      String[]  @default([])
+  posterUrl   String?
+  createdAt   DateTime  @default(now())
+  createdBy   String
+
+  // relations
+  creator User @relation("MovieCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+
+  watchLists WatchList[]
+}
+
+model WatchList {
+  id        String      @id @default(uuid())
+  userId    String
+  movieId   String
+  createdAt DateTime    @default(now())
+  status    WatchStatus @default(pending)
+  // relations
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  movie     Movie       @relation(fields: [movieId], references: [id], onDelete: Cascade)
+}
+
+// enums
+enum WatchStatus {
+  pending
+  watched
+  dropped
+  watching
 }
